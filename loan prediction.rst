@@ -1,0 +1,242 @@
+#===========Importing Neccessaryy library and module========
+
+#===========Importing Classifier=========
+from sklearn.ensemble import RandomForestClassifier
+
+#==========Importing numpy for multidimensional array
+import numpy as np
+
+#=========importing matplotlib for Plotting Graph==========
+import matplotlib.pyplot as plt
+
+#=========Loadig model selection for splitting the dataset==============
+from sklearn.model_selection import train_test_split
+
+#=========Importing models for classification efficiency
+from sklearn.metrics import accuracy_score, classification_report
+
+#========Importing library for dealing with DataFrame=====
+import pandas as pd
+#========Loading the dataset======
+loan = pd.read_csv('loan.csv')
+#==========Visualising the Dataset======
+loan.head(5)
+.dataframe tbody tr th:only-of-type { vertical-align: middle; } .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }
+Loan_ID	Gender	Married	Dependents	Education	Self_Employed	ApplicantIncome	CoapplicantIncome	LoanAmount	Loan_Amount_Term	Credit_History	Property_Area	Loan_Status
+0	LP001002	Male	No	0	Graduate	No	5849	0.0	NaN	360.0	1.0	Urban	Y
+1	LP001003	Male	Yes	1	Graduate	No	4583	1508.0	128.0	360.0	1.0	Rural	N
+2	LP001005	Male	Yes	0	Graduate	Yes	3000	0.0	66.0	360.0	1.0	Urban	Y
+3	LP001006	Male	Yes	0	Not Graduate	No	2583	2358.0	120.0	360.0	1.0	Urban	Y
+4	LP001008	Male	No	0	Graduate	No	6000	0.0	141.0	360.0	1.0	Urban	Y
+len(loan)
+614
+"""
+We have to check if the dataset contain null values so as we
+can replace them with mean values to improve our classification
+
+and
+
+we have to Encode string with Numerical values such as Gender and Education
+and Loan status
+"""
+#=======Checking the presence of Null Values=========
+
+#==== We use built in Function isnull() and sum()
+
+loan.isnull().sum()
+Loan_ID               0
+Gender               13
+Married               3
+Dependents           15
+Education             0
+Self_Employed        32
+ApplicantIncome       0
+CoapplicantIncome     0
+LoanAmount           22
+Loan_Amount_Term     14
+Credit_History       50
+Property_Area         0
+Loan_Status           0
+dtype: int64
+#========filling null values in Column with Numerical Values============
+
+#===========Loading the Required libray
+
+from sklearn.preprocessing import Imputer
+imputer = Imputer(missing_values='NaN', strategy='mean', axis=1)
+loan_n = loan.iloc[:, 8:11]
+dependat =loan['Dependents']
+dependat = dependat.replace('3+', 3)
+loan_n1 = loan.iloc[:, 3:4]
+imputer.fit(loan_n)
+loan_n = imputer.transform(loan_n)
+loan_d = pd.DataFrame(loan_n)
+loan.columns
+Index(['Loan_ID', 'Gender', 'Married', 'Dependents', 'Education',
+       'Self_Employed', 'ApplicantIncome', 'CoapplicantIncome', 'LoanAmount',
+       'Loan_Amount_Term', 'Credit_History', 'Property_Area', 'Loan_Status'],
+      dtype='object')
+loan['LoanAmount'],loan['Loan_Amount_Term'], loan['Credit_History'] = loan_d[0], loan_d[1], loan_d[2]
+loan.isnull().sum()
+Loan_ID               0
+Gender               13
+Married               3
+Dependents           15
+Education             0
+Self_Employed        32
+ApplicantIncome       0
+CoapplicantIncome     0
+LoanAmount            0
+Loan_Amount_Term      0
+Credit_History        0
+Property_Area         0
+Loan_Status           0
+dtype: int64
+employ = loan['Self_Employed']
+P_area = loan['Property_Area']
+gender = loan["Gender"]
+status = loan["Married"]
+education = loan["Education"]
+loan_status = loan['Loan_Status']
+
+
+status = status.fillna("Yes")
+gender = gender.fillna("Male")
+P_area= P_area.fillna("Rural")
+employ= employ.fillna("Yes")
+dependat = dependat.fillna(1)
+
+from sklearn.preprocessing import LabelEncoder
+label_encoder = LabelEncoder()
+
+#========Initializing String to be Encoded==========
+
+input_class = ["Male", "Female"]
+input_class1 = ["Yes", "No"]
+input_class2 = ["Rural", "Urban", "Semiurban"]
+input_class3 = ["Graduate", "Not Graduate"]
+input_class4 = ["Y", "N"]
+
+label_encoder.fit(input_class)
+
+
+gender = gender.iloc[:].values
+gender = list(gender)
+gender = label_encoder.transform(gender)
+
+label_encoder.fit(input_class1)
+
+status = status.iloc[:].values
+employ = employ.iloc[:].values
+employ = list(employ)
+status = list(status)
+status = label_encoder.transform(status)
+employ = label_encoder.transform(employ)
+
+
+label_encoder.fit(input_class2)
+
+P_area = P_area.iloc[:].values
+P_area = list(P_area)
+P_area = label_encoder.transform(P_area)
+
+label_encoder.fit(input_class3)
+
+education = education.iloc[:].values
+education = list(education)
+education = label_encoder.transform(education)
+
+label_encoder.fit(input_class4)
+
+loan_status = loan_status.iloc[:].values
+loan_status =list(loan_status)
+loan_status = label_encoder.transform(loan_status)
+loan['Education'],loan['Self_Employed'],loan['Property_Area'],loan["Gender"],loan["Married"], loan['Loan_Status'], loan['Dependents'] =education, employ, P_area, gender, status, loan_status, dependat
+loan.head()
+loan.to_csv("Loan Processed data.csv")
+data = loan.iloc[:, 1:-1]
+target = loan.iloc[:, -1:]
+data.head(5)
+.dataframe tbody tr th:only-of-type { vertical-align: middle; } .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }
+Gender	Married	Dependents	Education	Self_Employed	ApplicantIncome	CoapplicantIncome	LoanAmount	Loan_Amount_Term	Credit_History	Property_Area
+0	1	0	0	0	0	5849	0.0	180.5	360.0	1.0	2
+1	1	1	1	0	0	4583	1508.0	128.0	360.0	1.0	0
+2	1	1	0	0	1	3000	0.0	66.0	360.0	1.0	2
+3	1	1	0	1	0	2583	2358.0	120.0	360.0	1.0	2
+4	1	0	0	0	0	6000	0.0	141.0	360.0	1.0	2
+target.head(2)
+.dataframe tbody tr th:only-of-type { vertical-align: middle; } .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }
+Loan_Status
+0	1
+1	0
+data.to_csv("Data.csv")
+target.to_csv("Target.csv")
+x_train, x_test, y_train, y_test = train_test_split(data, target, test_size = 1/5, random_state=10)
+model_a = RandomForestClassifier()
+model_a.fit(x_train, y_train)
+pred = model_a.predict(x_test)
+forest = accuracy_score(y_test, pred)
+
+
+
+from sklearn.neighbors import KNeighborsClassifier
+model = KNeighborsClassifier()
+model.fit(x_train, y_train)
+pred = model.predict(x_test)
+k = accuracy_score(y_test, pred)
+
+
+from sklearn.naive_bayes import MultinomialNB
+model = MultinomialNB()
+model.fit(x_train, y_train)
+pred = model.predict(x_test)
+MB= accuracy_score(y_test, pred)
+
+from sklearn.naive_bayes import GaussianNB
+model = GaussianNB()
+model.fit(x_train, y_train)
+pred = model.predict(x_test)
+GB=accuracy_score(y_test, pred)
+
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(x_train, y_train)
+pred = model.predict(x_test)
+LR=accuracy_score(y_test, pred)
+
+from sklearn.tree import DecisionTreeClassifier
+model = DecisionTreeClassifier()
+model.fit(x_train, y_train)
+pred = model.predict(x_test)
+DTC=  accuracy_score(y_test, pred)
+
+print ("""The result were as Follows\nRandom Forest Classifer {}\n\n K Nearest Neighbors {}
+\n\nMultinomial NB {}\n\nGaussian NB {}\n\nLogistic Regression {}\n\n Decision Tree Classifier {}
+""".format(forest,k, MB, GB, LR, DTC))
+The result were as Follows
+Random Forest Classifer 0.7967479674796748
+
+ K Nearest Neighbors 0.6422764227642277
+
+
+Multinomial NB 0.5365853658536586
+
+Gaussian NB 0.6504065040650406
+
+Logistic Regression 0.6991869918699187
+
+ Decision Tree Classifier 0.7317073170731707
+C:UsersKalebuAnaconda3libsite-packagesipykernel_launcher.py:2: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples,), for example using ravel().
+
+C:UsersKalebuAnaconda3libsite-packagesipykernel_launcher.py:10: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().
+  # Remove the CWD from sys.path while we load stuff.
+C:UsersKalebuAnaconda3libsite-packagessklearnutilsvalidation.py:578: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().
+  y = column_or_1d(y, warn=True)
+from sklearn.externals import joblib
+joblib.dump(model_a, "Forest.pkl")
+['Forest.pkl']
+n= data.iloc[:,:].values
+m = n[0]
+m = np.array([m])
+model.predict(m)
+array([1], dtype=int64)
